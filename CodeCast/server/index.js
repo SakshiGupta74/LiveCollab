@@ -4,7 +4,6 @@ const bodyParser = require('body-parser');
 const connect = require('./database/conn.js');
 const AuthRouter = require('./routes/AuthRouter.js');
 
-const path = require('path');
 const app = express();
 const http = require("http");
 const { Server } = require("socket.io");
@@ -12,6 +11,7 @@ const ACTIONS = require("./Actions");
 const cors = require("cors");
 const axios = require("axios");
 const server = http.createServer(app);
+const path = require('path');
 require("dotenv").config();
 
 const languageConfig = {
@@ -123,6 +123,21 @@ app.post("/compile", async (req, res) => {
     res.status(500).json({ error: "Failed to compile code" });
   }
 });
+
+const __dirname1 = path.resolve();
+if(process.env.NODE_ENV === 'production'){
+
+  app.use(express.static(path.join(__dirname1,"/client/build")));
+
+  app.get('*',(req,res)=>{
+    res.sendFile(path.resolve(__dirname1,"client","build","index.html"))
+  })
+
+}else{
+  app.get("/",(req,res) =>{
+    res.send("API is running successfully");
+  });
+}
 
 const PORT = process.env.PORT || 5000;
 server.listen(PORT, async function () {
